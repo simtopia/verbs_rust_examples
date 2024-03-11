@@ -219,7 +219,7 @@ pub struct Gbm {
     token_b_price: i128,
     token_a_price_with_impact: i128,
     // gbm drift
-    mu: f64,  
+    mu: f64,
     // gbm vol
     sigma: f64,
     normal: Normal<f64>,
@@ -252,7 +252,7 @@ impl Gbm {
         // We keep the price of token_b constant
         let new_price_a = self.token_a_price.as_f64()
             * f64::exp((self.mu - 0.5 * self.sigma) * self.dt + self.sigma * self.dt.sqrt() * z1);
-        let new_price_a_with_impact: f64 = new_price_a + price_impact; 
+        let new_price_a_with_impact: f64 = new_price_a + price_impact;
         let new_price_b = self.token_b_price; //self.token_b_price.as_f64() * z2;
         self.token_a_price = new_price_a.as_i128();
         self.token_b_price = new_price_b.as_i128();
