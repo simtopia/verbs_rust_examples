@@ -218,6 +218,10 @@ pub struct Gbm {
     token_a_price: i128,
     token_b_price: i128,
     token_a_price_with_impact: i128,
+    // gbm drift
+    mu: f64,  
+    // gbm vol
+    sigma: f64,
     normal: Normal<f64>,
     dt: f64,
 }
@@ -235,17 +239,20 @@ impl Gbm {
             token_a_price,
             token_b_price,
             token_a_price_with_impact,
-            normal: Normal::new(mu, sigma).unwrap(),
+            mu,
+            sigma,
+            normal: Normal::new(0., 1.).unwrap(),
             dt,
         }
     }
 
     pub fn update<R: RngCore>(&mut self, rng: &mut R, price_impact: f64) {
-        let z1 = self.dt * self.normal.sample(rng);
+        let z1 = self.normal.sample(rng);
 
         // We keep the price of token_b constant
-        let new_price_a = self.token_a_price.as_f64() * z1;
-        let new_price_a_with_impact: f64 = new_price_a + price_impact * self.token_b_price.as_f64();
+        let new_price_a = self.token_a_price.as_f64()
+            * f64::exp((self.mu - 0.5 * self.sigma) * self.dt + self.sigma * self.dt.sqrt() * z1);
+        let new_price_a_with_impact: f64 = new_price_a + price_impact; 
         let new_price_b = self.token_b_price; //self.token_b_price.as_f64() * z2;
         self.token_a_price = new_price_a.as_i128();
         self.token_b_price = new_price_b.as_i128();
