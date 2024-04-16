@@ -1,0 +1,22 @@
+name: pre-merge
+run-name: ${{ github.actor }} pre-merge
+on: [pull_request]
+
+jobs:
+  rust_checks:
+      if: github.event.pull_request.draft == false
+      runs-on: ubuntu-latest
+      container: rust:latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: dtolnay/rust-toolchain@stable
+          with:
+            components: rustfmt, clippy
+        - name: Rust tests
+          run: cargo test
+        - name: Rust formatting
+          run: cargo fmt --all -- --check
+        - name: Clippy
+          run: cargo clippy -- -Dwarnings
+        - name: Build docs 📚
+          run: cargo doc --no-deps
