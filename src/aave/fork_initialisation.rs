@@ -7,6 +7,7 @@ use alloy_primitives::{Address, U256};
 use alloy_sol_types::SolValue;
 use verbs_rs::agent::AgentSet;
 use verbs_rs::env::Env;
+use verbs_rs::env::Validator;
 use verbs_rs::utils::{address_from_hex, constructor_data};
 use verbs_rs::ForkDb;
 
@@ -49,11 +50,12 @@ pub struct AaveAddresses {
     pub acl_manager: Address,
 }
 
-pub fn initialise_sim(
+pub fn initialise_sim<V: Validator>(
     params: ForkedSimParameters,
     alchemy_key: String,
+    validator: V,
 ) -> (
-    Env<ForkDb>,
+    Env<ForkDb, V>,
     AgentStates,
     PeripheryAddresses,
     UniswapAddresses,
@@ -65,7 +67,7 @@ pub fn initialise_sim(
     let url_str = format!("https://eth-mainnet.g.alchemy.com/v2/{}", alchemy_key);
     let url_str = url_str.as_str();
 
-    let mut env = Env::<ForkDb>::init(url_str, Some(params.block_number));
+    let mut env = Env::<ForkDb, V>::init(url_str, Some(params.block_number), validator);
 
     let admin_address = address_from_hex(admin_address);
 

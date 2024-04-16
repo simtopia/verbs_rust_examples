@@ -4,7 +4,7 @@ use alloy_primitives::{Address, Uint, U256};
 use rand::Rng;
 use verbs_rs::agent::{Agent, RecordedAgent};
 use verbs_rs::contract::Transaction;
-use verbs_rs::env::Env;
+use verbs_rs::env::{Env, Validator};
 use verbs_rs::DB;
 
 pub struct BorrowAgent {
@@ -49,9 +49,10 @@ impl BorrowAgent {
 }
 
 impl Agent for BorrowAgent {
-    fn update<D, R>(&mut self, rng: &mut R, network: &mut Env<D>) -> Vec<Transaction>
+    fn update<D, V, R>(&mut self, rng: &mut R, network: &mut Env<D, V>) -> Vec<Transaction>
     where
         D: DB,
+        V: Validator,
         R: Rng,
     {
         if rng.gen::<f64>() < self.activation_rate {
@@ -107,7 +108,7 @@ impl Agent for BorrowAgent {
 }
 
 impl RecordedAgent<U256> for BorrowAgent {
-    fn record<D: DB>(&mut self, _env: &mut Env<D>) -> U256 {
+    fn record<D: DB, V: Validator>(&mut self, _env: &mut Env<D, V>) -> U256 {
         U256::ZERO
     }
 }

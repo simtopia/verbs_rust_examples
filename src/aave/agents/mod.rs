@@ -11,7 +11,7 @@ pub use uniswap_agent::UniswapPriceAgent;
 pub use uniswap_noise_agent::UniswapNoiseAgent;
 use verbs_rs::agent::{AgentSet, AgentVec, SimState, SingletonAgent};
 use verbs_rs::contract::Transaction;
-use verbs_rs::env::Env;
+use verbs_rs::env::{Env, Validator};
 use verbs_rs::DB;
 
 #[derive(SimState)]
