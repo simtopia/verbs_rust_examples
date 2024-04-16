@@ -68,7 +68,7 @@ pub fn liquidation_call(
         None,
         None,
         U256::ZERO,
-        true,
+        false,
     )
 }
 
