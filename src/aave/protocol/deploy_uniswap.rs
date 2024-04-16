@@ -1,5 +1,6 @@
 use alloy_primitives::{Address, U256};
 use alloy_sol_types::SolValue;
+use verbs_rs::env::Validator;
 use verbs_rs::utils::constructor_data;
 use verbs_rs::{env::Env, LocalDB};
 
@@ -13,12 +14,12 @@ pub struct UniswapAddresses {
     pub quoter_address: Address,
 }
 
-pub fn deploy_uniswap_contracts(
-    mut env: Env<LocalDB>,
+pub fn deploy_uniswap_contracts<V: Validator>(
+    mut env: Env<LocalDB, V>,
     admin_address: Address,
     periphery_addresses: &PeripheryAddresses,
     uniswap_fee: u32,
-) -> (Env<LocalDB>, UniswapAddresses) {
+) -> (Env<LocalDB, V>, UniswapAddresses) {
     let factory_address = env.deploy_contract(
         admin_address,
         "Uniswap factory",

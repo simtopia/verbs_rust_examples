@@ -5,7 +5,7 @@ use alloy_primitives::{Address, Uint, U256};
 use rand::Rng;
 use verbs_rs::agent::{Agent, RecordedAgent};
 use verbs_rs::contract::Transaction;
-use verbs_rs::env::Env;
+use verbs_rs::env::{Env, Validator};
 use verbs_rs::DB;
 
 pub struct UniswapNoiseAgent {
@@ -18,8 +18,8 @@ pub struct UniswapNoiseAgent {
 }
 
 impl UniswapNoiseAgent {
-    pub fn new<D>(
-        network: &mut Env<D>,
+    pub fn new<D, V>(
+        network: &mut Env<D, V>,
         idx: usize,
         fee: u32,
         swap_router: Address,
@@ -28,6 +28,7 @@ impl UniswapNoiseAgent {
     ) -> Self
     where
         D: DB,
+        V: Validator,
     {
         let address = Address::from(Uint::from(idx));
         let token_a_decimals = calls::get_decimals(network, address, token_a);
@@ -43,9 +44,10 @@ impl UniswapNoiseAgent {
 }
 
 impl Agent for UniswapNoiseAgent {
-    fn update<D, R>(&mut self, rng: &mut R, _network: &mut Env<D>) -> Vec<Transaction>
+    fn update<D, V, R>(&mut self, rng: &mut R, _network: &mut Env<D, V>) -> Vec<Transaction>
     where
         D: DB,
+        V: Validator,
         R: Rng,
     {
         let mut calls: Vec<Transaction> = vec![];
@@ -100,7 +102,7 @@ impl Agent for UniswapNoiseAgent {
 }
 
 impl RecordedAgent<U256> for UniswapNoiseAgent {
-    fn record<D: DB>(&mut self, _env: &mut Env<D>) -> U256 {
+    fn record<D: DB, V: Validator>(&mut self, _env: &mut Env<D, V>) -> U256 {
         U256::ZERO
     }
 }

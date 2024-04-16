@@ -8,6 +8,7 @@ use self::protocol::uniswap_abi;
 use alloy_primitives::{I256, U256};
 use verbs_rs::agent::AgentSet;
 use verbs_rs::env::Env;
+use verbs_rs::env::Validator;
 use verbs_rs::utils::address_from_hex;
 use verbs_rs::utils::div_u256;
 use verbs_rs::LocalDB;
@@ -65,10 +66,11 @@ fn get_sqrt_price_token_a_x96(params: &SimParameters) -> u128 {
     price
 }
 
-pub fn initialise_sim(
+pub fn initialise_sim<V: Validator>(
     params: SimParameters,
+    validator: V,
 ) -> (
-    Env<LocalDB>,
+    Env<LocalDB, V>,
     AgentStates,
     protocol::PeripheryAddresses,
     protocol::UniswapAddresses,
@@ -78,7 +80,7 @@ pub fn initialise_sim(
     let admin_address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
     let admin_address = address_from_hex(admin_address);
 
-    let env = Env::<LocalDB>::init(U256::ZERO, U256::ZERO);
+    let env = Env::<LocalDB, V>::init(U256::ZERO, U256::ZERO, validator);
 
     let (mut env, periphery_addresses, uniswap_addresses, aave_addresses) =
         protocol::deploy_aave_contracts(

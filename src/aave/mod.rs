@@ -6,6 +6,7 @@ mod initialisation;
 mod protocol;
 pub mod types;
 
+use verbs_rs::env::GasPriorityValidator;
 use verbs_rs::sim_runner;
 
 use self::initialisation::initialise_sim;
@@ -18,8 +19,10 @@ pub fn aave_sim_from_fork(
 ) {
     println!("Initialising Simulation");
 
+    let validator = GasPriorityValidator {};
+
     let (mut env, mut agent_sets, _, _, _) =
-        fork_initialisation::initialise_sim(params, alchemy_key);
+        fork_initialisation::initialise_sim(params, alchemy_key, validator);
 
     println!("Running");
 
@@ -27,7 +30,8 @@ pub fn aave_sim_from_fork(
 }
 
 pub fn aave_sim(seed: u64, n_steps: usize, params: types::SimParameters) {
-    let (mut env, mut agent_sets, _, _, _) = initialise_sim(params);
+    let validator = GasPriorityValidator {};
+    let (mut env, mut agent_sets, _, _, _) = initialise_sim(params, validator);
 
     sim_runner::run(&mut env, &mut agent_sets, seed, n_steps);
 }

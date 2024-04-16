@@ -3,19 +3,20 @@ use crate::aave::protocol::{aave_abi, periphery_abi};
 use crate::aave::types;
 use alloy_primitives::{Address, U256};
 use verbs_rs::agent::{AgentVec, SingletonAgent};
-use verbs_rs::env::Env;
+use verbs_rs::env::{Env, Validator};
 use verbs_rs::DB;
 
-pub fn admin_mint_and_supply<D>(
-    mut env: Env<D>,
+pub fn admin_mint_and_supply<D, V>(
+    mut env: Env<D, V>,
     admin_address: Address,
     faucet: Address,
     pool: Address,
     token: Address,
     amount: u128,
-) -> Env<D>
+) -> Env<D, V>
 where
     D: DB,
+    V: Validator,
 {
     let amount = U256::from(amount);
 
@@ -58,16 +59,17 @@ where
     env
 }
 
-pub fn approve_and_mint<D>(
-    mut env: Env<D>,
+pub fn approve_and_mint<D, V>(
+    mut env: Env<D, V>,
     addresses: Vec<Address>,
     faucet: Address,
     token: Address,
     pool: Address,
     amount: u128,
-) -> Env<D>
+) -> Env<D, V>
 where
     D: DB,
+    V: Validator,
 {
     let amount = U256::from(amount);
 
@@ -98,16 +100,17 @@ where
     env
 }
 
-pub fn approve_and_mint_dai<D>(
-    mut env: Env<D>,
+pub fn approve_and_mint_dai<D, V>(
+    mut env: Env<D, V>,
     addresses: Vec<Address>,
     dai: Address,
     dai_admin: Address,
     pool: Address,
     amount: u128,
-) -> Env<D>
+) -> Env<D, V>
 where
     D: DB,
+    V: Validator,
 {
     let amount = U256::from(amount);
 
@@ -137,16 +140,17 @@ where
     env
 }
 
-pub fn _approve_and_mint_bal<D>(
-    mut env: Env<D>,
+pub fn _approve_and_mint_bal<D, V>(
+    mut env: Env<D, V>,
     admin_address: Address,
     addresses: Vec<Address>,
     bal: Address,
     pool: Address,
     amount: u128,
-) -> Env<D>
+) -> Env<D, V>
 where
     D: DB,
+    V: Validator,
 {
     let amount = U256::from(amount);
 
@@ -200,15 +204,16 @@ where
     env
 }
 
-pub fn approve_and_mint_weth<D>(
-    mut env: Env<D>,
+pub fn approve_and_mint_weth<D, V>(
+    mut env: Env<D, V>,
     addresses: Vec<Address>,
     weth: Address,
     pool: Address,
     amount: u128,
-) -> Env<D>
+) -> Env<D, V>
 where
     D: DB,
+    V: Validator,
 {
     let amount = U256::from(amount);
 
@@ -295,8 +300,8 @@ pub fn initialise_liquidation_agents(
     AgentVec::from(agents)
 }
 
-pub fn initialise_uniswap_price_agent<D>(
-    env: &mut Env<D>,
+pub fn initialise_uniswap_price_agent<D, V>(
+    env: &mut Env<D, V>,
     pool: Address,
     fee: u32,
     swap_router: Address,
@@ -309,6 +314,7 @@ pub fn initialise_uniswap_price_agent<D>(
 ) -> SingletonAgent<(i128, i128), UniswapPriceAgent>
 where
     D: DB,
+    V: Validator,
 {
     SingletonAgent::from(UniswapPriceAgent::new(
         env,
@@ -325,8 +331,8 @@ where
     ))
 }
 
-pub fn initialise_uniswap_noise_agents<D>(
-    env: &mut Env<D>,
+pub fn initialise_uniswap_noise_agents<D, V>(
+    env: &mut Env<D, V>,
     n_agents: usize,
     fee: u32,
     swap_router: Address,
@@ -335,6 +341,7 @@ pub fn initialise_uniswap_noise_agents<D>(
 ) -> AgentVec<U256, UniswapNoiseAgent>
 where
     D: DB,
+    V: Validator,
 {
     let agents = (4000..4000 + n_agents)
         .map(|i| UniswapNoiseAgent::new(env, i, fee, swap_router, token_a, token_b))

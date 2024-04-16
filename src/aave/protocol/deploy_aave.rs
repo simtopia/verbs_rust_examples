@@ -1,7 +1,7 @@
 use super::{aave_abi, aave_bytecode};
 use alloy_primitives::{Address, Uint, U256, U64};
 use alloy_sol_types::{SolCall, SolValue};
-use verbs_rs::env::Env;
+use verbs_rs::env::{Env, Validator};
 use verbs_rs::utils::{constructor_data, data_bytes_from_hex};
 use verbs_rs::LocalDB;
 
@@ -17,8 +17,8 @@ pub struct AaveAddresses {
     pub oracle: Address,
 }
 
-pub fn deploy_aave_contracts(
-    mut env: Env<LocalDB>,
+pub fn deploy_aave_contracts<V: Validator>(
+    mut env: Env<LocalDB, V>,
     admin_address: Address,
     token_a_liquidation_threshold: u128,
     token_b_liquidation_threshold: u128,
@@ -26,7 +26,7 @@ pub fn deploy_aave_contracts(
     token_b_base_ltv: u128,
     uniswap_fee: u32,
 ) -> (
-    Env<LocalDB>,
+    Env<LocalDB, V>,
     PeripheryAddresses,
     UniswapAddresses,
     AaveAddresses,
@@ -127,7 +127,8 @@ pub fn deploy_aave_contracts(
             data: aave_abi::TreasuryImplementation::initializeCall {
                 fundsAdmin: treasury_controller_address,
             }
-            .abi_encode(),
+            .abi_encode()
+            .into(),
         },
         U256::ZERO,
     )
@@ -238,7 +239,8 @@ pub fn deploy_aave_contracts(
                 symbol: "REV1".to_string(),
                 decimals: 18u8,
             }
-            .abi_encode(),
+            .abi_encode()
+            .into(),
         },
         U256::ZERO,
     )
@@ -249,7 +251,7 @@ pub fn deploy_aave_contracts(
         staked_aave_proxy_address,
         aave_abi::StakeAave_Proxy::upgradeToAndCallCall {
             newImplementation: staked_aave_v2_address,
-            data: data_bytes_from_hex("8129fc1c"),
+            data: data_bytes_from_hex("8129fc1c").into(),
         },
         U256::ZERO,
     )
@@ -260,7 +262,7 @@ pub fn deploy_aave_contracts(
         staked_aave_proxy_address,
         aave_abi::StakeAave_Proxy::upgradeToAndCallCall {
             newImplementation: staked_aave_v3_address,
-            data: data_bytes_from_hex("8129fc1c"),
+            data: data_bytes_from_hex("8129fc1c").into(),
         },
         U256::ZERO,
     )
@@ -660,7 +662,7 @@ pub fn deploy_aave_contracts(
             aTokenDecimals: 0u8,
             aTokenName: "ATOKEN_IMPL".to_string(),
             aTokenSymbol: "ATOKEN_IMPL".to_string(),
-            params: data_bytes_from_hex("00"),
+            params: data_bytes_from_hex("00").into(),
         },
         U256::ZERO,
     )
@@ -686,7 +688,7 @@ pub fn deploy_aave_contracts(
             aTokenDecimals: 0u8,
             aTokenName: "DELEGATION_AWARE_ATOKEN_IMPL".to_string(),
             aTokenSymbol: "DELEGATION_AWARE_ATOKEN_IMPL".to_string(),
-            params: data_bytes_from_hex("00"),
+            params: data_bytes_from_hex("00").into(),
         },
         U256::ZERO,
     )
@@ -711,7 +713,7 @@ pub fn deploy_aave_contracts(
             debtTokenDecimals: 0u8,
             debtTokenName: "STABLE_DEBT_TOKEN_IMPL".to_string(),
             debtTokenSymbol: "STABLE_DEBT_TOKEN_IMPL".to_string(),
-            params: data_bytes_from_hex("00"),
+            params: data_bytes_from_hex("00").into(),
         },
         U256::ZERO,
     )
@@ -736,7 +738,7 @@ pub fn deploy_aave_contracts(
             debtTokenDecimals: 0u8,
             debtTokenName: "VARIABLE_DEBT_TOKEN_IMPL".to_string(),
             debtTokenSymbol: "VARIABLE_DEBT_TOKEN_IMPL".to_string(),
-            params: data_bytes_from_hex("00"),
+            params: data_bytes_from_hex("00").into(),
         },
         U256::ZERO,
     )
@@ -831,7 +833,7 @@ pub fn deploy_aave_contracts(
                     variableDebtTokenSymbol: "VariableDebtAAVE".to_string(),
                     stableDebtTokenName: "AAVE Stable Debt".to_string(),
                     stableDebtTokenSymbol: "StableDebtAAVE".to_string(),
-                    params: data_bytes_from_hex("10"),
+                    params: data_bytes_from_hex("10").into(),
                 },
                 aave_abi::PoolConfigurator_Implementation::InitReserveInput {
                     aTokenImpl: a_token_address,
@@ -848,7 +850,7 @@ pub fn deploy_aave_contracts(
                     variableDebtTokenSymbol: "VariableDebtA".to_string(),
                     stableDebtTokenName: "A Stable Debt".to_string(),
                     stableDebtTokenSymbol: "StableDebtA".to_string(),
-                    params: data_bytes_from_hex("10"),
+                    params: data_bytes_from_hex("10").into(),
                 },
                 aave_abi::PoolConfigurator_Implementation::InitReserveInput {
                     aTokenImpl: a_token_address,
@@ -865,7 +867,7 @@ pub fn deploy_aave_contracts(
                     variableDebtTokenSymbol: "VariableDebtB".to_string(),
                     stableDebtTokenName: "B Stable Debt".to_string(),
                     stableDebtTokenSymbol: "StableDebtB".to_string(),
-                    params: data_bytes_from_hex("10"),
+                    params: data_bytes_from_hex("10").into(),
                 },
                 aave_abi::PoolConfigurator_Implementation::InitReserveInput {
                     aTokenImpl: a_token_address,
@@ -882,7 +884,7 @@ pub fn deploy_aave_contracts(
                     variableDebtTokenSymbol: "VariableDebtWETH".to_string(),
                     stableDebtTokenName: "WETH Stable Debt".to_string(),
                     stableDebtTokenSymbol: "StableDebtWETH".to_string(),
-                    params: data_bytes_from_hex("10"),
+                    params: data_bytes_from_hex("10").into(),
                 },
             ],
         },
