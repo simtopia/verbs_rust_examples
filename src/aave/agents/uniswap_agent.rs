@@ -7,7 +7,7 @@ use rand::RngCore;
 use rand_distr::{Distribution, Normal};
 use verbs_rs::agent::{Agent, RecordedAgent};
 use verbs_rs::contract::Transaction;
-use verbs_rs::env::Env;
+use verbs_rs::env::{Env, Validator};
 use verbs_rs::utils::div_u256;
 use verbs_rs::DB;
 
@@ -26,8 +26,8 @@ pub struct UniswapPriceAgent {
 }
 
 impl UniswapPriceAgent {
-    pub fn new<D>(
-        network: &mut Env<D>,
+    pub fn new<D, V>(
+        network: &mut Env<D, V>,
         idx: usize,
         pool: Address,
         fee: u32,
@@ -41,6 +41,7 @@ impl UniswapPriceAgent {
     ) -> Self
     where
         D: DB,
+        V: Validator,
     {
         let address = Address::from(Uint::from(idx));
         let external_market = Gbm::new(dt, mu, sigma, token_a_price, token_a_price, token_b_price);
@@ -141,9 +142,10 @@ impl UniswapPriceAgent {
 }
 
 impl Agent for UniswapPriceAgent {
-    fn update<D, R>(&mut self, rng: &mut R, network: &mut Env<D>) -> Vec<Transaction>
+    fn update<D, V, R>(&mut self, rng: &mut R, network: &mut Env<D, V>) -> Vec<Transaction>
     where
         D: DB,
+        V: Validator,
         R: RngCore,
     {
         // Uniswap returns price of token0 in terms of token1
@@ -206,7 +208,7 @@ impl Agent for UniswapPriceAgent {
 }
 
 impl RecordedAgent<(i128, i128)> for UniswapPriceAgent {
-    fn record<D: DB>(&mut self, _env: &mut Env<D>) -> (i128, i128) {
+    fn record<D: DB, V: Validator>(&mut self, _env: &mut Env<D, V>) -> (i128, i128) {
         (
             self.external_market.token_a_price,
             self.external_market.token_b_price,

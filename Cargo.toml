@@ -5,10 +5,10 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-verbs-rs = "0.3.1"
+verbs-rs = "0.4.1"
 
-alloy-primitives = "0.6.4"
-alloy-sol-types = { version="0.6.4", features=["json"]}
+alloy-primitives = "0.7.0"
+alloy-sol-types = { version="0.7.0", features=["json"]}
 
 rand = "0.8.5"
 rand_distr = "0.4.3"

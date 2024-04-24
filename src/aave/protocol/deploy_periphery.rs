@@ -1,6 +1,6 @@
 use alloy_primitives::Address;
 use alloy_sol_types::SolValue;
-use verbs_rs::env::Env;
+use verbs_rs::env::{Env, Validator};
 use verbs_rs::utils::constructor_data;
 use verbs_rs::LocalDB;
 
@@ -13,10 +13,10 @@ pub struct PeripheryAddresses {
     pub weth: Address,
 }
 
-pub fn deploy_periphery_contracts(
-    mut env: Env<LocalDB>,
+pub fn deploy_periphery_contracts<V: Validator>(
+    mut env: Env<LocalDB, V>,
     admin_address: Address,
-) -> (Env<LocalDB>, PeripheryAddresses) {
+) -> (Env<LocalDB, V>, PeripheryAddresses) {
     let faucet_address = env.deploy_contract(
         admin_address,
         "Faucet",

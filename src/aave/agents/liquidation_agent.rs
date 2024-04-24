@@ -7,7 +7,7 @@ use rand::Rng;
 use std::mem;
 use verbs_rs::agent::{Agent, RecordedAgent};
 use verbs_rs::contract::Transaction;
-use verbs_rs::env::{Env, RevertError};
+use verbs_rs::env::{Env, RevertError, Validator};
 use verbs_rs::utils::{div_u256, scale_data_value, Eth};
 use verbs_rs::DB;
 
@@ -80,9 +80,10 @@ impl LiquidationAgent {
         }
     }
 
-    fn accountability<D>(&self, network: &mut Env<D>, user: Address, amount: U256) -> bool
+    fn accountability<D, V>(&self, network: &mut Env<D, V>, user: Address, amount: U256) -> bool
     where
         D: DB,
+        V: Validator,
     {
         let call_result: Result<
             (
@@ -136,9 +137,10 @@ impl LiquidationAgent {
         }
     }
 
-    fn _update<D, R>(&mut self, _rng: &mut R, network: &mut Env<D>) -> Vec<Transaction>
+    fn _update<D, V, R>(&mut self, _rng: &mut R, network: &mut Env<D, V>) -> Vec<Transaction>
     where
         D: DB,
+        V: Validator,
         R: Rng,
     {
         // Get current balance of the liquidator in the collateral asset and the debt asset
@@ -228,9 +230,14 @@ impl LiquidationAgent {
         calls
     }
 
-    fn _update_adversarial<D, R>(&mut self, _rng: &mut R, network: &mut Env<D>) -> Vec<Transaction>
+    fn _update_adversarial<D, V, R>(
+        &mut self,
+        _rng: &mut R,
+        network: &mut Env<D, V>,
+    ) -> Vec<Transaction>
     where
         D: DB,
+        V: Validator,
         R: Rng,
     {
         // Get current balacnce of the liquidator in the collateral asset and the debt asset
@@ -375,9 +382,10 @@ impl LiquidationAgent {
 }
 
 impl Agent for LiquidationAgent {
-    fn update<D, R>(&mut self, _rng: &mut R, network: &mut Env<D>) -> Vec<Transaction>
+    fn update<D, V, R>(&mut self, _rng: &mut R, network: &mut Env<D, V>) -> Vec<Transaction>
     where
         D: DB,
+        V: Validator,
         R: Rng,
     {
         if self.adversarial {
@@ -393,7 +401,7 @@ impl Agent for LiquidationAgent {
 }
 
 impl RecordedAgent<types::UserData> for LiquidationAgent {
-    fn record<D: DB>(&mut self, _env: &mut Env<D>) -> types::UserData {
+    fn record<D: DB, V: Validator>(&mut self, _env: &mut Env<D, V>) -> types::UserData {
         mem::take(&mut self.current_user_data)
     }
 }

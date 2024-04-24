@@ -1,6 +1,6 @@
 use crate::aave::protocol::{aave_abi, periphery_abi, uniswap_abi};
 use alloy_primitives::{Address, I256, U256};
-use verbs_rs::{contract::Transaction, env::Env, DB};
+use verbs_rs::{contract::Transaction, env::Env, env::Validator, DB};
 
 pub fn supply_call(
     user_address: Address,
@@ -17,6 +17,8 @@ pub fn supply_call(
             onBehalfOf: user_address,
             referralCode: 0,
         },
+        None,
+        None,
         U256::ZERO,
         true,
     )
@@ -38,8 +40,10 @@ pub fn borrow_call(
             referralCode: 0,
             onBehalfOf: user_address,
         },
+        None,
+        None,
         U256::ZERO,
-        false,
+        true,
     )
 }
 
@@ -61,19 +65,22 @@ pub fn liquidation_call(
             debtToCover: amount,
             receiveAToken: false,
         },
+        None,
+        None,
         U256::ZERO,
         false,
     )
 }
 
-pub fn get_reserve_configuration_data<D>(
-    network: &mut Env<D>,
+pub fn get_reserve_configuration_data<D, V>(
+    network: &mut Env<D, V>,
     admin_address: Address,
     data_provider_address: Address,
     token_address: Address,
 ) -> aave_abi::PoolDataProvider::getReserveConfigurationDataReturn
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
@@ -88,14 +95,15 @@ where
         .0
 }
 
-pub fn get_asset_price<D>(
-    network: &mut Env<D>,
+pub fn get_asset_price<D, V>(
+    network: &mut Env<D, V>,
     admin_address: Address,
     oracle_address: Address,
     token_address: Address,
 ) -> U256
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
@@ -120,14 +128,15 @@ where
 // /// * ltv
 // /// * healthFactor
 // ///
-pub fn get_user_data<D>(
-    network: &mut Env<D>,
+pub fn get_user_data<D, V>(
+    network: &mut Env<D, V>,
     admin_address: Address,
     pool_contract: Address,
     account_address: Address,
 ) -> aave_abi::Pool_Implementation::getUserAccountDataReturn
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
@@ -143,13 +152,14 @@ where
 }
 
 // /// Manually set the price of a token via it's price oracle
-pub fn set_token_price<D>(
-    network: &mut Env<D>,
+pub fn set_token_price<D, V>(
+    network: &mut Env<D, V>,
     admin_address: Address,
     token_oracle_address: Address,
     price: I256,
 ) where
     D: DB,
+    V: Validator,
 {
     network
         .direct_execute(
@@ -161,13 +171,14 @@ pub fn set_token_price<D>(
         .unwrap();
 }
 
-pub fn _uniswap_liquidity<D>(
-    network: &mut Env<D>,
+pub fn _uniswap_liquidity<D, V>(
+    network: &mut Env<D, V>,
     admin_address: Address,
     uniswap_pool_address: Address,
 ) -> u128
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
@@ -190,8 +201,10 @@ pub fn uniswap_swap_call(
         recipient,
         swap_router,
         uniswap_abi::SwapRouter::exactInputSingleCall { params },
+        None,
+        None,
         U256::ZERO,
-        true,
+        false,
     )
 }
 
@@ -204,14 +217,17 @@ pub fn uniswap_swap_call_exact_output(
         recipient,
         swap_router,
         uniswap_abi::SwapRouter::exactOutputSingleCall { params },
+        None,
+        None,
         U256::ZERO,
-        true,
+        false,
     )
 }
 
-pub fn balance_of<D>(network: &mut Env<D>, caller: Address, token: Address) -> U256
+pub fn balance_of<D, V>(network: &mut Env<D, V>, caller: Address, token: Address) -> U256
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
@@ -225,13 +241,14 @@ where
         ._0
 }
 
-pub fn get_slot0<D>(
-    network: &mut Env<D>,
+pub fn get_slot0<D, V>(
+    network: &mut Env<D, V>,
     caller: Address,
     pool: Address,
 ) -> uniswap_abi::UniswapV3Pool::slot0Return
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
@@ -244,9 +261,10 @@ where
         .0
 }
 
-pub fn get_liquidity<D>(network: &mut Env<D>, caller: Address, pool: Address) -> u128
+pub fn get_liquidity<D, V>(network: &mut Env<D, V>, caller: Address, pool: Address) -> u128
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
@@ -260,8 +278,8 @@ where
         ._0
 }
 
-pub fn quote_v2_exact_output_swap<D>(
-    network: &mut Env<D>,
+pub fn quote_v2_exact_output_swap<D, V>(
+    network: &mut Env<D, V>,
     caller: Address,
     token_in: Address,
     token_out: Address,
@@ -271,6 +289,7 @@ pub fn quote_v2_exact_output_swap<D>(
 ) -> Option<uniswap_abi::Quoter_v2::quoteExactOutputSingleReturn>
 where
     D: DB,
+    V: Validator,
 {
     let quote = network.direct_call(
         caller,
@@ -292,9 +311,10 @@ where
     }
 }
 
-pub fn get_decimals<D>(network: &mut Env<D>, caller: Address, token: Address) -> U256
+pub fn get_decimals<D, V>(network: &mut Env<D, V>, caller: Address, token: Address) -> U256
 where
     D: DB,
+    V: Validator,
 {
     let decimals: U256 = network
         .direct_call(
@@ -311,9 +331,10 @@ where
     decimals
 }
 
-pub fn get_token0<D>(network: &mut Env<D>, caller: Address, pool: Address) -> Address
+pub fn get_token0<D, V>(network: &mut Env<D, V>, caller: Address, pool: Address) -> Address
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
@@ -327,9 +348,10 @@ where
         ._0
 }
 
-pub fn get_token1<D>(network: &mut Env<D>, caller: Address, pool: Address) -> Address
+pub fn get_token1<D, V>(network: &mut Env<D, V>, caller: Address, pool: Address) -> Address
 where
     D: DB,
+    V: Validator,
 {
     network
         .direct_call(
