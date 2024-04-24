@@ -2,7 +2,6 @@ use aave::aave_sim;
 use clap::Parser;
 mod aave;
 
-
 #[derive(Parser, Debug)]
 #[command(about, long_about = None)]
 struct Args {

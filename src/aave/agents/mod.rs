@@ -8,13 +8,13 @@ use alloy_primitives::U256;
 pub use borrow_agent::BorrowAgent;
 pub use liquidation_agent::LiquidationAgent;
 use rand::RngCore;
+use serde::{Deserialize, Serialize};
 pub use uniswap_agent::UniswapPriceAgent;
 pub use uniswap_noise_agent::UniswapNoiseAgent;
 use verbs_rs::agent::{AgentSet, AgentVec, SimState, SingletonAgent};
 use verbs_rs::contract::Transaction;
 use verbs_rs::env::{Env, Validator};
 use verbs_rs::DB;
-use serde::{Serialize, Deserialize};
 
 #[derive(SimState)]
 pub struct AgentStates {
