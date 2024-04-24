@@ -15,3 +15,5 @@ rand_distr = "0.4.3"
 
 funty = "2.0.0"
 clap = { version = "4.5.1", features = ["derive"] }
+serde = "1.0.198"
+serde_json = "1.0.116"

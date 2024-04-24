@@ -2,6 +2,7 @@ use aave::aave_sim;
 use clap::Parser;
 mod aave;
 
+
 #[derive(Parser, Debug)]
 #[command(about, long_about = None)]
 struct Args {
@@ -25,7 +26,7 @@ fn main() {
     let seed = args.seed;
     let n_steps = args.n_steps;
 
-    match args.fork {
+    let results = match args.fork {
         true => match args.key {
             Some(k) => {
                 let params = aave::types::ForkedSimParameters {
@@ -40,7 +41,7 @@ fn main() {
                     block_number: 18564279u64,
                 };
 
-                aave::aave_sim_from_fork(seed, n_steps, params, k);
+                aave::aave_sim_from_fork(seed, n_steps, params, k)
             }
             None => panic!("Alchemy key argument required for forked simulation"),
         },
@@ -62,7 +63,7 @@ fn main() {
                 adversarial: false,
                 uniswap_fee: 500u32,
             };
-            aave_sim(seed, n_steps, params);
+            aave_sim(seed, n_steps, params)
         }
-    }
+    };
 }
