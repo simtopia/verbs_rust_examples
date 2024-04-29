@@ -27,7 +27,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let seeds = Vec::from_iter(10..10 + args.n_seeds);
+    let seeds = Vec::from_iter(0..args.n_seeds);
     let n_steps = args.n_steps;
 
     let results: Vec<SimData> = match args.fork {
