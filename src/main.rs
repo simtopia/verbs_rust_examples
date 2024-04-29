@@ -1,13 +1,18 @@
-use aave::aave_sim;
+use aave::SimData;
 use clap::Parser;
+use kdam::TqdmParallelIterator;
+use rayon::prelude::*;
+
 mod aave;
+
+use std::fs;
 
 #[derive(Parser, Debug)]
 #[command(about, long_about = None)]
 struct Args {
     /// Random seed
     #[arg(long)]
-    seed: u64,
+    n_seeds: u64,
     /// Number of simulation steps
     #[arg(long)]
     n_steps: usize,
@@ -22,10 +27,10 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let seed = args.seed;
+    let seeds = Vec::from_iter(10..10 + args.n_seeds);
     let n_steps = args.n_steps;
 
-    let results = match args.fork {
+    let results: Vec<SimData> = match args.fork {
         true => match args.key {
             Some(k) => {
                 let params = aave::types::ForkedSimParameters {
@@ -40,7 +45,13 @@ fn main() {
                     block_number: 18564279u64,
                 };
 
-                aave::aave_sim_from_fork(seed, n_steps, params, k)
+                seeds
+                    .par_iter()
+                    .map(|i| {
+                        let k = k.clone();
+                        aave::aave_sim_from_fork(*i, n_steps, params, k)
+                    })
+                    .collect()
             }
             None => panic!("Alchemy key argument required for forked simulation"),
         },
@@ -50,7 +61,7 @@ fn main() {
                 n_liquidators: 1,
                 prices_mu: 0f64,
                 prices_dt: 0.01f64,
-                prices_sigma: 0.4f64,
+                prices_sigma: 0.3f64,
                 borrow_activation_rate: 0.1f64,
                 token_a_initial_price: 100000000000i128,
                 token_b_initial_price: 100000000i128,
@@ -62,7 +73,13 @@ fn main() {
                 adversarial: false,
                 uniswap_fee: 500u32,
             };
-            aave_sim(seed, n_steps, params)
+            seeds
+                .par_iter()
+                .tqdm()
+                .map(|i| aave::aave_sim(*i, n_steps, params))
+                .collect()
         }
     };
+    let json = serde_json::to_string(&results).expect("Could not serialise to json string");
+    let _ = fs::write("sim_dat.txt", json);
 }

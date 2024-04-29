@@ -25,7 +25,8 @@ pub struct AgentStates {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AgentData {
+pub struct SimData {
+    pub seed: u64,
     pub borrow_agents: Vec<Vec<U256>>,
     pub liquidation_agents: Vec<Vec<UserData>>,
     pub uniswap_price_agent: Vec<(i128, i128)>,
