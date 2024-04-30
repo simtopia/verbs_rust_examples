@@ -61,7 +61,7 @@ impl Agent for BorrowAgent {
                     self.address,
                     self.pool_address,
                     self.supply_token_address,
-                    U256::from(10_u128.pow(20)),
+                    U256::from(10_u128.pow(18)),
                 );
                 self.has_supplied = true;
 
@@ -79,7 +79,7 @@ impl Agent for BorrowAgent {
 
                 let exp = U256::from(10u128).pow(self.borrow_token_decimals - U256::from(4u128));
                 // Agent borrows a random fraction of the available to borrow amount
-                let u = U256::from(rng.gen_range(9000..10000));
+                let u = U256::from(rng.gen_range(8000..9000));
                 let available_borrow = exp * available_borrow_base * u / borrow_asset_price;
 
                 if available_borrow > U256::ZERO {
